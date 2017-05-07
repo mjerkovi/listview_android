@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             LinearLayout newView;
 
             ListElement w = getItem(position);
@@ -107,8 +107,11 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     int duration = Toast.LENGTH_SHORT;
-                    Toast toast = Toast.makeText(context, w.url, duration);
+                    ListElement itm = getItem(position);
+                    Toast toast = Toast.makeText(context, itm.url, duration);
+                    toast.show();
                     Intent intent = new Intent(MainActivity.this, WebActivity.class);
+                    intent.putExtra("URL", itm.url);
                     startActivity(intent);
                 }
             });
@@ -119,6 +122,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    private MyAdapter aa;
 
     public void getSites() {
         String url = "https://luca-ucsc-teaching-backend.appspot.com/hw4/get_news_sites";
@@ -131,28 +136,51 @@ public class MainActivity extends AppCompatActivity {
                             JSONArray responseArr = response.getJSONArray("news_sites");
                             Log.d(LOG_TAG, "In try block: " + responseArr.toString());
                             for(int i = 0;i <responseArr.length(); ++i){
-                                String temp_title;
-                                String temp_sub;
-                                String temp_url;
-                                if(responseArr.getJSONObject(i).isNull("title")){
-                                    temp_title = null;
-                                }
-                                else {temp_title = responseArr.getJSONObject(i).getString("title");}
 
-                                if(responseArr.getJSONObject(i).isNull("subtitle")){
-                                    temp_sub = null;
+                                if (responseArr.getJSONObject(i).isNull("title") ||
+                                        responseArr.getJSONObject(i).isNull("url")) {
+                                    Log.d(LOG_TAG, "Title or url is null");
                                 }
-                                else{temp_sub = responseArr.getJSONObject(i).getString("subtitle");}
+                                else {
+                                    String temp_title;
+                                    String temp_sub;
+                                    String temp_url;
+                                    temp_title = responseArr.getJSONObject(i).getString("title");
+                                    temp_url = responseArr.getJSONObject(i).getString("url");
+                                    if (responseArr.getJSONObject(i).isNull("subtitle")) {
+                                        temp_sub = null;
+                                    }
+                                    else {
+                                        temp_sub = responseArr.getJSONObject(i).getString("subtitle");
+                                    }
+                                    aList.add(new ListElement(temp_title, temp_sub, temp_url));
+//                                    Log.d(LOG_TAG, "Title" + i + ": " + aList.get(i).title);
+//                                    Log.d(LOG_TAG, "SubTitle" + i + ": " + aList.get(i).subtitle);
+//                                    Log.d(LOG_TAG, "Url" + i + ": " + aList.get(i).url);
 
-                                if(responseArr.getJSONObject(i).isNull("url")){
-                                    temp_url = null;
                                 }
-                                else{temp_url = responseArr.getJSONObject(i).getString("url");}
-
-                                aList.add(new ListElement(temp_title, temp_sub, temp_url));
-                                Log.d(LOG_TAG, "Title" + i + ": " + aList.get(i).title);
-                                Log.d(LOG_TAG, "SubTitle" + i + ": " + aList.get(i).subtitle);
-                                Log.d(LOG_TAG, "Url" + i + ": " + aList.get(i).url);
+//                                String temp_title;
+//                                String temp_sub;
+//                                String temp_url;
+//                                if(responseArr.getJSONObject(i).isNull("title")){
+//                                    temp_title = null;
+//                                }
+//                                else {temp_title = responseArr.getJSONObject(i).getString("title");}
+//
+//                                if(responseArr.getJSONObject(i).isNull("subtitle")){
+//                                    temp_sub = null;
+//                                }
+//                                else{temp_sub = responseArr.getJSONObject(i).getString("subtitle");}
+//
+//                                if(responseArr.getJSONObject(i).isNull("url")){
+//                                    temp_url = null;
+//                                }
+//                                else{temp_url = responseArr.getJSONObject(i).getString("url");}
+//
+//                                aList.add(new ListElement(temp_title, temp_sub, temp_url));
+//                                Log.d(LOG_TAG, "Title" + i + ": " + aList.get(i).title);
+//                                Log.d(LOG_TAG, "SubTitle" + i + ": " + aList.get(i).subtitle);
+//                                Log.d(LOG_TAG, "Url" + i + ": " + aList.get(i).url);
                             }
                             aa.notifyDataSetChanged();
                         } catch (Exception e) {
@@ -171,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         queue.add(jsObjRequest);
     }
 
-    private MyAdapter aa;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
