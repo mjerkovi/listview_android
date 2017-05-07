@@ -28,6 +28,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import android.content.Intent;
+import android.widget.Toast;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -100,6 +103,15 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // need to add a listener that has an intent for a webview that goes to the url.
+            newView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int duration = Toast.LENGTH_SHORT;
+                    Toast toast = Toast.makeText(context, w.url, duration);
+                    Intent intent = new Intent(MainActivity.this, WebActivity.class);
+                    startActivity(intent);
+                }
+            });
 
             return newView;
         }
