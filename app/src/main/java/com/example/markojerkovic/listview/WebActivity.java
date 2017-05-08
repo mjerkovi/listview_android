@@ -4,17 +4,11 @@ import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import android.content.Context;
-import android.content.SharedPreferences;
+
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,9 +18,7 @@ import android.content.Intent;
 public class WebActivity extends AppCompatActivity {
 
     static final public String WEBPAGE_NOTHING = "about:blank";
-    static final public String MY_WEBPAGE = "http://google.com";
     static final public String LOG_TAG = "webviewActivity";
-    public String news_url = null;
     public String news_host = null;
 
     WebView myWebView;
@@ -39,22 +31,33 @@ public class WebActivity extends AppCompatActivity {
         myWebView.setWebViewClient(new MyWebViewClient());
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
+
         // Get url from the intent
         String url = null;
         Bundle extras = getIntent().getExtras();
-        if(extras == null) {
+        if (extras == null) {
             finish();
-        }
-        else {
+        } else {
             url = extras.getString("URL");
         }
-        news_host = Uri.parse(url).getHost().substring(4);
+
+        // If the url begins with "www." then the host name is the
+        // substring of everything besides the "www."
+        if (Uri.parse(url).getHost().startsWith("www.")) {
+            news_host = Uri.parse(url).getHost().substring(4);
+        } else {
+            news_host = Uri.parse(url).getHost();
+        }
+        Log.d(LOG_TAG, "news host: " + news_host);
+
         myWebView.loadUrl(url);
     }
 
 
 
     private class MyWebViewClient extends WebViewClient {
+        // If the url is not from the same the host as the original news_host,
+        // then the url should be opened in chrome.
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             if (Uri.parse(url).getHost().contains(news_host)) {
